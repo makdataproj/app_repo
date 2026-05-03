@@ -1,0 +1,16 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE plist PUBLIC "-//Apple//DTD PLIST 1.0//EN" "http://www.apple.com/DTDs/PropertyList-1.0.dtd">
+<plist version="1.0">
+<dict>
+    <key>CFBundleDisplayName</key>
+    <string>Voice Camera</string>
+    <key>NSCameraUsageDescription</key>
+    <string>Voice Camera needs camera access to capture job site photos.</string>
+    <key>NSMicrophoneUsageDescription</key>
+    <string>Voice Camera needs microphone access to record voice notes while capturing photos.</string>
+    <key>NSSpeechRecognitionUsageDescription</key>
+    <string>Voice Camera uses speech recognition to transcribe recorded voice notes into editable captions and reports.</string>
+    <key>NSPhotoLibraryAddUsageDescription</key>
+    <string>Voice Camera can save selected captures to your photo library when requested.</string>
+</dict>
+</plist>
