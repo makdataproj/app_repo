@@ -1,0 +1,243 @@
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <title>iOS Voice Camera POC</title>
+    <link rel="stylesheet" href="styles.css">
+  </head>
+  <body>
+    <div class="app-shell">
+      <aside class="sidebar" aria-label="Session controls">
+        <div class="brand-block">
+          <p class="eyebrow">Field Capture</p>
+          <h1>Voice Camera</h1>
+        </div>
+
+        <form id="sessionForm" class="panel dense-form">
+          <label>
+            Job/session
+            <input id="sessionTitle" name="sessionTitle" autocomplete="off">
+          </label>
+          <label>
+            Client
+            <input id="clientName" name="clientName" autocomplete="off">
+          </label>
+          <label>
+            Address
+            <input id="address" name="address" autocomplete="street-address">
+          </label>
+          <div class="two-col">
+            <label>
+              Email
+              <input id="clientEmail" name="clientEmail" type="email" autocomplete="email">
+            </label>
+            <label>
+              Phone
+              <input id="clientPhone" name="clientPhone" type="tel" autocomplete="tel">
+            </label>
+          </div>
+          <label>
+            Notes
+            <textarea id="sessionNotes" name="sessionNotes" rows="3"></textarea>
+          </label>
+          <label class="check-row">
+            <input id="estimateMode" type="checkbox">
+            Estimate-related session
+          </label>
+        </form>
+
+        <section class="panel stat-grid" aria-label="Session stats">
+          <div>
+            <span id="photoCount">0</span>
+            <small>Photos</small>
+          </div>
+          <div>
+            <span id="includedCount">0</span>
+            <small>Included</small>
+          </div>
+          <div>
+            <span id="recordingCount">0</span>
+            <small>Recordings</small>
+          </div>
+        </section>
+
+        <div class="sidebar-actions">
+          <button id="newSessionButton" class="secondary" type="button">New session</button>
+          <button id="clearSessionButton" class="danger" type="button">Delete local session</button>
+        </div>
+      </aside>
+
+      <main class="workspace">
+        <nav class="tabs" aria-label="Primary workflow">
+          <button class="tab active" data-tab="capture" type="button">Camera</button>
+          <button class="tab" data-tab="review" type="button">Review</button>
+          <button class="tab" data-tab="report" type="button">Report</button>
+          <button class="tab" data-tab="estimate" type="button">Estimate</button>
+        </nav>
+
+        <section id="capture" class="tab-panel active">
+          <div class="camera-stage">
+            <video id="cameraPreview" autoplay playsinline muted></video>
+            <canvas id="captureCanvas" hidden></canvas>
+            <div id="cameraFallback" class="camera-fallback" hidden>
+              <strong>Camera unavailable</strong>
+              <span>Use placeholder capture to keep testing the workflow.</span>
+            </div>
+
+            <div class="camera-topbar">
+              <span id="activeSessionLabel">Session</span>
+              <span id="permissionStatus">Checking camera...</span>
+            </div>
+
+            <div class="camera-controls">
+              <button id="switchCameraButton" class="icon-button" type="button" title="Switch camera">↻</button>
+              <button id="recordButton" class="record-button" type="button">
+                <span class="record-dot"></span>
+                <span id="recordLabel">Record</span>
+                <span id="recordTimer">00:00</span>
+              </button>
+              <button id="captureButton" class="shutter-button" type="button" title="Capture photo"></button>
+              <button id="finishCaptureButton" class="primary" type="button">Review</button>
+            </div>
+          </div>
+
+          <section class="capture-strip" aria-label="Recent captures">
+            <h2>Recent captures</h2>
+            <div id="recentCaptures" class="thumb-row"></div>
+          </section>
+        </section>
+
+        <section id="review" class="tab-panel">
+          <div class="split-layout">
+            <section class="panel">
+              <div class="section-head">
+                <div>
+                  <p class="eyebrow">Editable</p>
+                  <h2>Transcript</h2>
+                </div>
+                <span id="transcriptionStatus" class="status-pill">Idle</span>
+              </div>
+              <textarea id="transcriptText" rows="10" placeholder="Recorded speech or typed notes appear here."></textarea>
+              <div id="recordingList" class="recording-list"></div>
+            </section>
+
+            <section class="panel">
+              <div class="section-head">
+                <div>
+                  <p class="eyebrow">Selected media</p>
+                  <h2>Photo review</h2>
+                </div>
+                <button id="suggestCaptionsButton" class="secondary" type="button">Suggest captions</button>
+              </div>
+              <div id="photoReviewList" class="photo-list"></div>
+            </section>
+          </div>
+        </section>
+
+        <section id="report" class="tab-panel">
+          <div class="split-layout">
+            <section class="panel dense-form">
+              <div class="section-head">
+                <div>
+                  <p class="eyebrow">Draft builder</p>
+                  <h2>Report</h2>
+                </div>
+                <button id="generateReportButton" class="primary" type="button">Generate</button>
+              </div>
+              <label>
+                Template
+                <select id="reportTemplate">
+                  <option value="Site documentation">Site documentation</option>
+                  <option value="Estimate support">Estimate support</option>
+                  <option value="Before-and-after summary">Before-and-after summary</option>
+                  <option value="Client update">Client update</option>
+                </select>
+              </label>
+              <label>
+                Title
+                <input id="reportTitle">
+              </label>
+              <label>
+                Summary
+                <textarea id="reportSummary" rows="5"></textarea>
+              </label>
+              <div class="action-row">
+                <button id="emailReportButton" class="secondary" type="button">Email</button>
+                <button id="smsReportButton" class="secondary" type="button">SMS</button>
+                <button id="shareReportButton" class="secondary" type="button">Share</button>
+                <button id="printReportButton" class="secondary" type="button">PDF</button>
+              </div>
+            </section>
+
+            <section id="reportPreview" class="preview-paper" aria-label="Report preview"></section>
+          </div>
+        </section>
+
+        <section id="estimate" class="tab-panel">
+          <div class="split-layout">
+            <section class="panel dense-form">
+              <div class="section-head">
+                <div>
+                  <p class="eyebrow">Draft builder</p>
+                  <h2>Estimate</h2>
+                </div>
+                <button id="addLineItemButton" class="secondary" type="button">Add line</button>
+              </div>
+              <div id="lineItems" class="line-items"></div>
+              <label>
+                Assumptions
+                <textarea id="estimateAssumptions" rows="4"></textarea>
+              </label>
+              <div class="estimate-total">
+                <span>Total</span>
+                <strong id="estimateTotal">$0.00</strong>
+              </div>
+              <div class="action-row">
+                <button id="generateEstimateButton" class="primary" type="button">Generate</button>
+                <button id="emailEstimateButton" class="secondary" type="button">Email</button>
+                <button id="smsEstimateButton" class="secondary" type="button">SMS</button>
+              </div>
+            </section>
+
+            <section id="estimatePreview" class="preview-paper" aria-label="Estimate preview"></section>
+          </div>
+        </section>
+      </main>
+    </div>
+
+    <template id="photoReviewTemplate">
+      <article class="photo-card">
+        <img alt="">
+        <div class="photo-meta">
+          <div class="photo-card-head">
+            <strong class="photo-time"></strong>
+            <label class="check-row">
+              <input class="include-photo" type="checkbox">
+              Include
+            </label>
+          </div>
+          <label>
+            Caption
+            <textarea class="photo-caption" rows="3"></textarea>
+          </label>
+          <small class="photo-recording"></small>
+          <button class="danger remove-photo" type="button">Remove from session</button>
+        </div>
+      </article>
+    </template>
+
+    <template id="lineItemTemplate">
+      <div class="line-item">
+        <input class="line-description" placeholder="Description">
+        <input class="line-quantity" type="number" min="0" step="0.25" value="1" aria-label="Quantity">
+        <input class="line-unit" placeholder="Unit" value="each" aria-label="Unit">
+        <input class="line-cost" type="number" min="0" step="0.01" value="0" aria-label="Unit cost">
+        <strong class="line-total">$0.00</strong>
+        <button class="danger remove-line" type="button" aria-label="Remove line">×</button>
+      </div>
+    </template>
+
+    <script src="app.js"></script>
+  </body>
+</html>
